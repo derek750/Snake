@@ -21,6 +21,9 @@ module snake_top (
     wire [7:0] read_index;
     wire [3:0] read_x;
     wire [4:0] read_y;
+    wire [3:0] food_x;
+    wire [4:0] food_y;
+    wire food_ready;
     wire [7:0] vga_x;
     wire [6:0] vga_y;
     wire [8:0] vga_color;
@@ -44,7 +47,10 @@ module snake_top (
         .read_x(read_x),
         .read_y(read_y),
         .length(length),
-        .current_direction(current_direction)
+        .current_direction(current_direction),
+        .food_x(food_x),
+        .food_y(food_y),
+        .food_ready(food_ready)
     );
 
     snake_renderer renderer (
@@ -54,6 +60,9 @@ module snake_top (
         .read_index(read_index),
         .segment_x(read_x),
         .segment_y(read_y),
+        .food_x(food_x),
+        .food_y(food_y),
+        .food_ready(food_ready),
         .vga_x(vga_x),
         .vga_y(vga_y),
         .vga_color(vga_color),

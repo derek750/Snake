@@ -7,6 +7,9 @@ module snake_renderer (
     output reg [7:0] read_index,
     input wire [3:0] segment_x,
     input wire [4:0] segment_y,
+    input wire [3:0] food_x,
+    input wire [4:0] food_y,
+    input wire food_ready,
     output wire [7:0] vga_x,
     output wire [6:0] vga_y,
     output wire [8:0] vga_color,
@@ -18,6 +21,7 @@ module snake_renderer (
     localparam [8:0] DARK_GREEN = 9'h028;
     localparam [8:0] HEAD_COLOR = 9'h007;
     localparam [8:0] BODY_COLOR = 9'h1c0;
+    localparam [8:0] FOOD_COLOR = {3'd4, 3'd2, 3'd1};
 
     reg state;
     // which grid cell and which pixel inside that cell we are drawing
@@ -26,13 +30,18 @@ module snake_renderer (
     reg [2:0] pixel_x;
     reg [2:0] pixel_y;
     reg [8:0] cell_color;
+    reg food_cell;
+    wire food_pixel;
 
     // plot tells the VGA adapter to write the pixel at vga_x and vga_y
     assign plot = !reset && (state == PAINT);
     // center the 105-pixel-wide grid by starting it at x = 27
     assign vga_x = 8'd27 + cell_x * 8'd7 + pixel_x;
     assign vga_y = cell_y * 7'd7 + pixel_y;
-    assign vga_color = cell_color;
+    assign food_pixel = food_cell &&
+        (pixel_x >= 3'd1) && (pixel_x <= 3'd5) &&
+        (pixel_y >= 3'd1) && (pixel_y <= 3'd5);
+    assign vga_color = food_pixel ? FOOD_COLOR : cell_color;
 
     always @(posedge clk) begin
         if (reset) begin
@@ -44,17 +53,20 @@ module snake_renderer (
             pixel_y <= 3'd0;
             read_index <= 8'd0;
             cell_color <= LIGHT_GREEN;
+            food_cell <= 1'b0;
         end else if (state == LOOKUP) begin
             // read snake parts one at a time to see if one is in this cell
             if (read_index >= length) begin
                 // alternate green shades between neighboring empty cells
                 cell_color <= (cell_x[0] ^ cell_y[0]) ? DARK_GREEN : LIGHT_GREEN;
+                food_cell <= food_ready && (cell_x == food_x) && (cell_y == food_y);
                 pixel_x <= 3'd0;
                 pixel_y <= 3'd0;
                 state <= PAINT;
             end else if (segment_x == cell_x && segment_y == cell_y) begin
                 // index 0 is the head; all other parts use the body color
                 cell_color <= (read_index == 8'd0) ? HEAD_COLOR : BODY_COLOR;
+                food_cell <= 1'b0;
                 pixel_x <= 3'd0;
                 pixel_y <= 3'd0;
                 state <= PAINT;
