@@ -50,10 +50,10 @@ module snake_body (
         if (reset) begin
             length <= 8'd4; // default 4 length
             // initial snake faces right: head (7,8), tail (4,8).
-            body_x[0] <= 4'd7;
-            body_x[1] <= 4'd6;
-            body_x[2] <= 4'd5;
-            body_x[3] <= 4'd4;
+            body_x[0] <= 4'd3;
+            body_x[1] <= 4'd2;
+            body_x[2] <= 4'd1;
+            body_x[3] <= 4'd0;
             for (i = 0; i < MAX_LENGTH; i = i + 1)
                 body_y[i] <= 5'd8;
             for (i = 4; i < MAX_LENGTH; i = i + 1)
