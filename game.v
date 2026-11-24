@@ -6,7 +6,9 @@ module game #(
     input wire [1:0] movement_direction,
     input wire [7:0] read_index,
     output wire [3:0] read_x,
-    output wire [4:0] read_y
+    output wire [4:0] read_y,
+    output wire [7:0] length,
+    output reg [1:0] current_direction
 );
     localparam [1:0] D = 2'b00, A = 2'b01, W = 2'b10, S = 2'b11;
 
@@ -15,6 +17,13 @@ module game #(
     wire [4:0] head_y;
     reg [3:0] next_head_x;
     reg [4:0] next_head_y;
+
+    always @(posedge clk) begin
+        if (reset)
+            current_direction <= D;
+        else if (move_tick)
+            current_direction <= movement_direction;
+    end
 
     // moving logic
     always @(*) begin
@@ -45,6 +54,7 @@ module game #(
         .read_x(read_x),
         .read_y(read_y),
         .head_x(head_x),
-        .head_y(head_y)
+        .head_y(head_y),
+        .length(length)
     );
 endmodule
