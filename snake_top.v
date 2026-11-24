@@ -5,6 +5,9 @@ module snake_top (
     input wire PS2_CLK,
     input wire PS2_DAT,
     input wire [8:0] SW,
+    output wire [6:0] HEX0,
+    output wire [6:0] HEX1,
+    output wire [6:0] HEX2,
     output wire [7:0] VGA_R,
     output wire [7:0] VGA_G,
     output wire [7:0] VGA_B,
@@ -24,6 +27,11 @@ module snake_top (
     wire [3:0] food_x;
     wire [4:0] food_y;
     wire food_ready;
+    wire food_eaten;
+    wire [7:0] score;
+    wire [3:0] ones;
+    wire [3:0] tens;
+    wire [3:0] hundreds;
     wire [7:0] vga_x;
     wire [6:0] vga_y;
     wire [8:0] vga_color;
@@ -50,8 +58,21 @@ module snake_top (
         .current_direction(current_direction),
         .food_x(food_x),
         .food_y(food_y),
-        .food_ready(food_ready)
+        .food_ready(food_ready),
+        .food_eaten(food_eaten)
     );
+
+    score_counter counter (
+        .clk(CLOCK_50), .reset(reset), .food_eaten(food_eaten), .score(score)
+    );
+
+    assign ones = score % 8'd10;
+    assign tens = (score / 8'd10) % 8'd10;
+    assign hundreds = score / 8'd100;
+
+    seven_seg_decoder ones_display (.digit(ones), .segments(HEX0));
+    seven_seg_decoder tens_display (.digit(tens), .segments(HEX1));
+    seven_seg_decoder hundreds_display (.digit(hundreds), .segments(HEX2));
 
     snake_renderer renderer (
         .clk(CLOCK_50),
