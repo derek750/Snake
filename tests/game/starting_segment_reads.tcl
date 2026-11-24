@@ -1,6 +1,6 @@
 quit -sim
 if {![file isdirectory work]} {vlib work}
-vlog ../../game.v ../../snake_body.v ../../movement_counter.v starting_segment_reads.v
+vlog ../../game.v ../../game_state.v ../../snake_body.v ../../movement_counter.v starting_segment_reads.v
 vsim -voptargs=+acc work.starting_segment_reads
 view wave
 do wave.do starting_segment_reads
