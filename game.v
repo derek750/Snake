@@ -13,7 +13,8 @@ module game #(
     input wire [8:0] SW,
     output wire [3:0] food_x,
     output wire [4:0] food_y,
-    output wire food_ready
+    output wire food_ready,
+    output wire food_eaten
 );
     localparam [1:0] D = 2'b00, A = 2'b01, W = 2'b10, S = 2'b11;
 
@@ -24,10 +25,15 @@ module game #(
     wire [3:0] candidate_x;
     wire [4:0] candidate_y;
     wire candidate_occupied;
+    wire food_ahead;
     wire [3:0] head_x;
     wire [4:0] head_y;
     reg [3:0] next_head_x;
     reg [4:0] next_head_y;
+
+    // check if food is about to be eaten
+    assign food_ahead = food_ready && (next_head_x == food_x) && (next_head_y == food_y);
+    assign food_eaten = move_enable && food_ahead;
 
     always @(posedge clk) begin
         if (reset)
@@ -70,7 +76,7 @@ module game #(
     );
 
     food_placement food (
-        .clk(clk), .reset(reset), .SW(SW), .new_food(1'b0),
+        .clk(clk), .reset(reset), .SW(SW), .new_food(food_eaten),
         .candidate_occupied(candidate_occupied),
         .candidate_x(candidate_x), .candidate_y(candidate_y),
         .food_x(food_x), .food_y(food_y), .food_ready(food_ready)
@@ -80,7 +86,7 @@ module game #(
         .clk(clk), 
         .reset(reset), 
         .move_tick(move_enable), 
-        .grow(1'b0),
+        .grow(food_ahead),
         .next_head_x(next_head_x),
         .next_head_y(next_head_y),
         .read_index(read_index),
