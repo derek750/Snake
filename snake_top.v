@@ -4,6 +4,7 @@ module snake_top (
     input wire [3:0] KEY,
     input wire PS2_CLK,
     input wire PS2_DAT,
+    input wire [8:0] SW,
     output wire [7:0] VGA_R,
     output wire [7:0] VGA_G,
     output wire [7:0] VGA_B,
@@ -37,6 +38,7 @@ module snake_top (
     game snake (
         .clk(CLOCK_50),
         .reset(reset),
+        .SW(SW),
         .movement_direction(movement_direction),
         .read_index(read_index),
         .read_x(read_x),

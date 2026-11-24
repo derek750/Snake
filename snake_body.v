@@ -17,7 +17,10 @@ module snake_body (
     output wire [3:0] head_x,
     output wire [4:0] head_y,
     output reg [7:0] length,
-    output reg body_collision
+    output reg body_collision,
+    input wire [3:0] candidate_x,
+    input wire [4:0] candidate_y,
+    output reg candidate_occupied
 );
     // 15 x 17 
     localparam MAX_LENGTH = 255;
@@ -25,6 +28,7 @@ module snake_body (
     reg [4:0] body_y [0:MAX_LENGTH-1];
     integer i;
     integer segment;
+    integer food_segment;
 
     assign head_x = body_x[0];
     assign head_y = body_y[0];
@@ -33,6 +37,16 @@ module snake_body (
     assign read_valid = (read_index < length);
     assign read_x = read_valid ? body_x[read_index] : 4'dx;
     assign read_y = read_valid ? body_y[read_index] : 5'dx;
+
+    always @(*) begin
+        candidate_occupied = 1'b0;
+        for (food_segment = 0; food_segment < MAX_LENGTH; food_segment = food_segment + 1) begin
+            if ((food_segment < length) &&
+                (candidate_x == body_x[food_segment]) &&
+                (candidate_y == body_y[food_segment]))
+                candidate_occupied = 1'b1;
+        end
+    end
 
     // check body collision
     always @(*) begin

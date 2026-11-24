@@ -9,7 +9,11 @@ module game #(
     output wire [4:0] read_y,
     output wire [7:0] length,
     output reg [1:0] current_direction,
-    output wire game_over
+    output wire game_over,
+    input wire [8:0] SW,
+    output wire [3:0] food_x,
+    output wire [4:0] food_y,
+    output wire food_ready
 );
     localparam [1:0] D = 2'b00, A = 2'b01, W = 2'b10, S = 2'b11;
 
@@ -17,6 +21,9 @@ module game #(
     wire move_enable;
     wire wall_collision;
     wire body_collision;
+    wire [3:0] candidate_x;
+    wire [4:0] candidate_y;
+    wire candidate_occupied;
     wire [3:0] head_x;
     wire [4:0] head_y;
     reg [3:0] next_head_x;
@@ -62,6 +69,13 @@ module game #(
         .clk(clk), .reset(reset), .move_tick(move_tick)
     );
 
+    food_placement food (
+        .clk(clk), .reset(reset), .SW(SW), .new_food(1'b0),
+        .candidate_occupied(candidate_occupied),
+        .candidate_x(candidate_x), .candidate_y(candidate_y),
+        .food_x(food_x), .food_y(food_y), .food_ready(food_ready)
+    );
+
     snake_body snake (
         .clk(clk), 
         .reset(reset), 
@@ -75,6 +89,9 @@ module game #(
         .head_x(head_x),
         .head_y(head_y),
         .length(length),
-        .body_collision(body_collision)
+        .body_collision(body_collision),
+        .candidate_x(candidate_x),
+        .candidate_y(candidate_y),
+        .candidate_occupied(candidate_occupied)
     );
 endmodule
